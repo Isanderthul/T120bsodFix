@@ -66,7 +66,7 @@ Then unmount the disk
 $ diskutil unmountDisk /dev/disk2
 Unmount of all volumes on disk2 was successful
 ```
-Then dd the image to both flash paritions
+Then dd the image to both flash partitions
 ```
 $ sudo dd if=AXP2CN1829BR.bin of=/dev/disk2s1 bs=4m
 Password:

@@ -1,3 +1,4 @@
+// Copied from https://lars.karlslund.dk/2019/01/fix-bsod-on-designjet-t120-t520-for-free
 package main
 
 import (
