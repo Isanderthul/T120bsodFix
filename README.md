@@ -32,10 +32,10 @@ $ sudo dd if=/dev/disk3 of=/dev/disk2 bs=4m
 Put the flash into the printer and make sure that you get the same error message. A flash drive that is not compatible will cause the printer to emit a beep sound. Once you have the same error message on the new flash drive, you can now keep the old flash drive safe, as a backup.
 
 # Creating the new firmware image
-1. Save the go code to a hpfix.go file, and modify the target file name to 'AXP2CN1829BR.bin'
-2. You can find amperexl_pr_AXP2CN2022AR_secure_signed_rbx.ful here https://mnogochernil.ru/newsroom/hp-designjet-t120-t520-firmware-versions/
+1. Save the go code to a hpfix.go file, and modify the target file name to the firmware that corresponding to the name as on the original flash eg. 'AXP2CN1829BR.bin'
+2. You can find amperexl_pr_AXP2CN2022AR_secure_signed_rbx.ful here https://mnogochernil.ru/newsroom/hp-designjet-t120-t520-firmware-versions/ (added to repo as its not on the RU site anymore)
 3. Run the go file, `go run hpfix.go`, you might need to import the library, in which case you would also need `go get -u github.com/davecgh/go-spew/spew`
-4. inspect the resulting file, and make sure it has a valid header as described in https://lars.karlslund.dk/2019/01/fix-bsod-on-designjet-t120-t520-for-free/
+4. inspect the resulting file, and make sure it has a valid header (feed f00d) as described in https://lars.karlslund.dk/2019/01/fix-bsod-on-designjet-t120-t520-for-free/
 ```
 $ xxd AXP2CN1829BR.bin|head                                                                                                                                                                                                                     2 ↵
 00000000: feed f00d 8350 0000 01af fff8 84ff d760  .....P.........`
