@@ -4,6 +4,8 @@ https://lars.karlslund.dk/2019/01/fix-bsod-on-designjet-t120-t520-for-free/.
 
 Not all flash drives seem to work with the printer. To ensure your flash drive will work, the first thing to do is to clone the old flash drive onto the new flash drive, and check that your printer boots and has exactly the same error message.
 
+Note that somehow the printer *will* get new corrupt firmware despite your best effort to prevent updates. I recommend using a extension usb cable, and then placing your flash drive outside of the printer, so you do not need to unscrew the printer to access the drive again, when it becomes corrupted again. I have also tried to set my drive to read only mode (using a little toggle on the usb stick), but that prevents the printer from booting properly.
+
 # Cloning the usb drive
 Mount both the original and new flash drive, and make sure that both are visible using `diskutil list`. Note that the 'new' flash is 4GB, some old scrap drive I found lying around.
 ```
@@ -20,10 +22,11 @@ diskutil list
    2:                 DOS_FAT_32                         33.6 MB    disk3s2
    3:                 DOS_FAT_32 NO NAME                 1.9 GB     disk3s3
 ```
-use the dd command to copy /dev/disk3 to /dev/disk2. It is critical that you never assume the location of the flash drives (/dev/disk2), and always check before doing any dd commands.
-dd used with an incorrect link could instantly begin wiping out a partition on your computer, totally destroying it.
+use the dd command to copy /dev/disk3 to /dev/disk2. This is important to create the same partition structure on the new drive.
+:warning: It is critical that you never assume the location of the flash drives (/dev/disk2), and always check before doing any dd commands.
+:warning: dd used with an incorrect link could instantly begin wiping out a partition on your computer, totally destroying it.
 ```
-$ sudo dd if=/dev/disk3 of=/dev/disk2 bs=4m
+$ sudo dd if=/dev/disk3 of=/dev/disk2 bs=4m status=progress
 477+1 records in
 477+1 records out
 2003828736 bytes transferred in 866.017384 secs (2313844 bytes/sec)
@@ -31,7 +34,9 @@ $ sudo dd if=/dev/disk3 of=/dev/disk2 bs=4m
 # Testing the new flash drive
 Put the flash into the printer and make sure that you get the same error message. A flash drive that is not compatible will cause the printer to emit a beep sound. Once you have the same error message on the new flash drive, you can now keep the old flash drive safe, as a backup.
 
-# Creating the new firmware image
+# Creating the new firmware image (optional)
+Note that I have provided an already fixed file in this repo (AXP2CN1829BR.bin), so depending on your printer, you might not need to do this step at all, you can skip to the `Write the firmware image to the new flash` section.
+
 1. Save the go code to a hpfix.go file, and modify the target file name to the firmware that corresponding to the name as on the original flash eg. 'AXP2CN1829BR.bin'
 2. You can find amperexl_pr_AXP2CN2022AR_secure_signed_rbx.ful here https://mnogochernil.ru/newsroom/hp-designjet-t120-t520-firmware-versions/ (added to repo as its not on the RU site anymore)
 3. Run the go file, `go run hpfix.go`, you might need to import the library, in which case you would also need `go get -u github.com/davecgh/go-spew/spew`
@@ -66,18 +71,25 @@ Then unmount the disk
 $ diskutil unmountDisk /dev/disk2
 Unmount of all volumes on disk2 was successful
 ```
-Then dd the image to both flash partitions
+
+:warning: once again I remind you to always triple check the disk you intend to dd, selecting the wrong disk will destroy it.
+
+Then dd the image to *both* flash partitions
 ```
-$ sudo dd if=AXP2CN1829BR.bin of=/dev/disk2s1 bs=4m
+$ sudo dd if=AXP2CN1829BR.bin of=/dev/disk2s1 bs=4m status=progress
 Password:
 6+1 records in
 6+1 records out
 28327670 bytes transferred in 12.911111 secs (2194054 bytes/sec)
-$ sudo dd if=AXP2CN1829BR.bin of=/dev/disk2s2 bs=4m
+```
+and 
+```
+$ sudo dd if=AXP2CN1829BR.bin of=/dev/disk2s2 bs=4m status=progress
 6+1 records in
 6+1 records out
 28327670 bytes transferred in 12.995905 secs (2179738 bytes/sec)
 ```
+Note that on an old flash drive can take over 2 minutes (also leaving out the bs=4m makes it take _much_ longer!)
 
 # Testing the new firmware
 Put the flash into the printer and you should be able to boot past the error message, and your printer will be working again.
