@@ -6,7 +6,26 @@ Not all flash drives seem to work with the printer. To ensure your flash drive w
 
 Note that somehow the printer *will* get new corrupt firmware despite your best effort to prevent updates. I recommend using a extension usb cable, and then placing your flash drive outside of the printer, so you do not need to unscrew the printer to access the drive again, when it becomes corrupted again. I have also tried to set my drive to read only mode (using a little toggle on the usb stick), but that prevents the printer from booting properly.
 
-# Cloning the usb drive
+# Shortcut (cloning the pre-saved image to a usb drive)
+**Warning** It is critical that you never assume the location of the flash drives (/dev/disk3), and always check before doing any dd commands. dd used with an incorrect link could instantly begin wiping out a partition on your computer, totally destroying it.
+
+I have created a flash image with the files below, in a single flash image, this should be enough to fix your bsod, depending on the version of the printer.
+
+1. plug in your flash drive
+2. unmount the flash drive, first `diskutil list` to see the available drives (and associated partitions), then unmount the flash drive `diskutil unmountDisk disk3`.
+3. clone the t120flash.img to the flash drive, `sudo dd if=t120flash.img of=/dev/disk3 bs=4m status=progress`
+4. confirm the flash drive has the new correct structure, `diskutil list`, three partitions, 
+
+```
+/dev/disk3 (external, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:     FDisk_partition_scheme                        *2.0 GB     disk3
+   1:                 DOS_FAT_32                         33.6 MB    disk3s1
+   2:                 DOS_FAT_32                         33.6 MB    disk3s2
+   3:                 DOS_FAT_32 NO NAME                 1.9 GB     disk3s3
+```
+
+# Cloning the usb drive (partition structure)
 Mount both the original and new flash drive, and make sure that both are visible using `diskutil list`. Note that the 'new' flash is 4GB, some old scrap drive I found lying around.
 ```
 diskutil list
@@ -22,9 +41,9 @@ diskutil list
    2:                 DOS_FAT_32                         33.6 MB    disk3s2
    3:                 DOS_FAT_32 NO NAME                 1.9 GB     disk3s3
 ```
-use the dd command to copy /dev/disk3 to /dev/disk2. This is important to create the same partition structure on the new drive.
-:warning: It is critical that you never assume the location of the flash drives (/dev/disk2), and always check before doing any dd commands.
-:warning: dd used with an incorrect link could instantly begin wiping out a partition on your computer, totally destroying it.
+use the dd command to copy /dev/disk3 to /dev/disk2. This is important to create the same partition structure on the new drive. 
+**Note** HP seems to have some magic with the partitions, and I was never able to create a working flash drive from a new usb, despite my fdisk structure appearing to be exactly the same as the old flash drive.
+**Warning** It is critical that you never assume the location of the flash drives (/dev/disk2), and always check before doing any dd commands. dd used with an incorrect link could instantly begin wiping out a partition on your computer, totally destroying it.
 ```
 $ sudo dd if=/dev/disk3 of=/dev/disk2 bs=4m status=progress
 477+1 records in
